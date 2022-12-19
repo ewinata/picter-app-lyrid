@@ -1,7 +1,8 @@
 const Path = require('path')
 const HtmlWebpack = require('html-webpack-plugin')
+const Dotenv = require('dotenv-webpack');
 
-module.exports = {
+module.exports = (env) => ({
   entry: './src/index.js',
   output: {
     path: Path.resolve(__dirname, 'dist'),
@@ -42,7 +43,11 @@ module.exports = {
   plugins: [
     new HtmlWebpack({
       template: './public/index.html'
-    })
+    }),
+    new Dotenv({
+			path: `./.env.${env}`
+		}),
+
   ],
   devServer: {
     proxy: {
@@ -53,4 +58,4 @@ module.exports = {
     },
     historyApiFallback: true
   }
-}
+})

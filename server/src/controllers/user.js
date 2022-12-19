@@ -304,6 +304,7 @@ const registerUser = async (req, res) => {
     })
     return res.status(200).json(resp)
   } catch (err) {
+    console.log(err)
     return res
       .status(500)
       .json({ message: 'There was an error while registering. Please try again later' })

@@ -1,1 +1,1 @@
-export const BASE_URL = '/picter/api'
+export const BASE_URL = `${process.env.BACKEND_URL}/picter/api`

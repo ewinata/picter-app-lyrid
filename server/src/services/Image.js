@@ -1,19 +1,20 @@
 const Multer = require('multer')
 const { v4 } = require('uuid')
 const path = require('path')
-const AWS = require('aws-sdk')
+const S3 = require('aws-sdk/clients/s3')
 const MulterS3 = require('multer-s3')
 const dotenv = require('dotenv')
 
 dotenv.config()
 
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION
+const s3 = new S3({
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+  endpoint: process.env.AWS_ENDPOINT,
+  s3ForcePathStyle: true
 })
-
-const s3 = new AWS.S3()
 
 const storage = MulterS3({
   s3: s3,
@@ -34,6 +35,25 @@ const fileFilter = function (req, file, callback) {
     callback(new Error('Invalid file type'), false)
   }
   callback(null, true)
+}
+
+/**
+ * Get image
+ */
+const getObject = async (path) => {
+  const url = await s3.getSignedUrl(
+    'getObject',
+    {
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: path,
+      Expires: 999999
+    }
+  )
+
+  return url
+  // const data = await s3.getObject().promise();
+  //
+  // return data.Body.toString(utf-8);
 }
 
 /**
@@ -68,4 +88,4 @@ const deleteImage = async (file) => {
   }
 }
 
-module.exports = { imageUpload, deleteImage }
+module.exports = { imageUpload, deleteImage, getObject }

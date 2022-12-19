@@ -1,4 +1,4 @@
-const { imageUpload, deleteImage } = require('../services/Image')
+const { imageUpload, deleteImage, getObject } = require('../services/Image')
 const { promisify } = require('util')
 
 /**
@@ -15,7 +15,12 @@ const uploadImages = async (req, res) => {
       return res.status(400).json({ message: 'Please select files to upload' })
     }
     const files = req.files.map((file) => file.location)
-    return res.status(200).json({ message: 'Uploaded files', images: files })
+    // Generate presigned urls
+    const presignedUrls = await Promise.all(files.map(async file => {
+      return await getObject(file.split('/').pop());
+    }));
+    // console.log(presignedUrls)
+    return res.status(200).json({ message: 'Uploaded files', images: presignedUrls })
   } catch (err) {
     console.log(err)
     if (err.code === 'LIMIT_FILE_SIZE') {
